@@ -1,0 +1,391 @@
+{
+  "info": {
+    "_postman_id": "c1f72a4d-93d5-45d2-a7d1-e6e78dbbc95d",
+    "name": "HRIS Auth Service API Testing",
+    "description": "Koleksi API Postman untuk menguji hris-be-auth secara langsung dengan pengujian otentikasi login, validasi payload, verifikasi lintas service ke core, dan hak akses Superadmin via trusted header.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login User (Success)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Verify token structure and envelope\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");",
+                  "    pm.expect(jsonData.data.access_token).to.be.a('string');",
+                  "    pm.expect(jsonData.data.token_type).to.eql(\"Bearer\");",
+                  "    pm.expect(jsonData.data.user.role).to.be.a('string');",
+                  "});"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User (Fail - Invalid Credentials)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test(\"Verify INVALID_CREDENTIALS error code\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"error\");",
+                  "    pm.expect(jsonData.error.code).to.eql(\"INVALID_CREDENTIALS\");",
+                  "});"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@majumundur.com\",\n  \"password\": \"wrongpass\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Management (Superadmin Only)",
+      "item": [
+        {
+          "name": "Create User Account (Success - with X-User-Role)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 409 (If Email Exists)\", function () {",
+                  "    var code = pm.response.code;",
+                  "    pm.expect(code === 201 || code === 409).to.be.true;",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Verify user payload response\", function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.status).to.eql(\"success\");",
+                  "        pm.expect(jsonData.data.email).to.eql(\"citra.staff@majumundur.com\");",
+                  "        pm.expect(jsonData.data.role).to.eql(\"employee\");",
+                  "    });",
+                  "}"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "superadmin",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"citra.staff@majumundur.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"employee\",\n  \"emp_id\": 1000002\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User Account (Fail - Missing Superadmin Role Header)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"Verify FORBIDDEN error code\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"error\");",
+                  "    pm.expect(jsonData.error.code).to.eql(\"FORBIDDEN\");",
+                  "});"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "employee",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"forbiddenuser@majumundur.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"employee\",\n  \"emp_id\": 1000002\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User Account (Fail - emp_id Not Found in Core)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Verify VALIDATION_ERROR error code\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"error\");",
+                  "    pm.expect(jsonData.error.code).to.eql(\"VALIDATION_ERROR\");",
+                  "    pm.expect(jsonData.error.message).to.contain(\"Core Service\");",
+                  "});"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "superadmin",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invalidcoreemp@majumundur.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"employee\",\n  \"emp_id\": 9999999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404 (If User Not Registered)\", function () {",
+                  "    var code = pm.response.code;",
+                  "    pm.expect(code === 200 || code === 404).to.be.true;",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Verify updated role is admin\", function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.data.role).to.eql(\"admin\");",
+                  "    });",
+                  "}"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "superadmin",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users/1000000/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "users",
+                "1000000",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 404 (If User Not Registered)\", function () {",
+                  "    var code = pm.response.code;",
+                  "    pm.expect(code === 200 || code === 404).to.be.true;",
+                  "});"
+                ],
+                "type": "javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Role",
+                "value": "superadmin",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newsecurepassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/users/1000000/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "users",
+                "1000000",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "testEmail",
+      "value": "admin@majumundur.com",
+      "type": "string"
+    },
+    {
+      "key": "testPassword",
+      "value": "supersecurepassword",
+      "type": "string"
+    }
+  ]
+}

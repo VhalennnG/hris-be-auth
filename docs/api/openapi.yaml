@@ -1,0 +1,284 @@
+openapi: 3.0.3
+info:
+  title: HRIS Auth API
+  description: API untuk hris-be-auth, mengelola otentikasi login, reset password, dan manajemen user.
+  version: 1.1.0
+servers:
+  - url: http://localhost:4002/api/v1
+    description: Local development server
+paths:
+  /auth/login:
+    post:
+      summary: Login pengguna dan menerbitkan JWT RS256
+      description: Memverifikasi email dan password, mengembalikan token JWT dan biodata dasar pengguna.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: admin@majumundur.com
+                password:
+                  type: string
+                  example: supersecurepassword
+      responses:
+        '200':
+          description: Login berhasil, token diterbitkan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: eyJhbGciOiJSUzI1NiIs...
+                      token_type:
+                        type: string
+                        example: Bearer
+                      expires_in:
+                        type: integer
+                        example: 14400
+                      user:
+                        type: object
+                        properties:
+                          user_id:
+                            type: string
+                            example: "1000001"
+                          emp_id:
+                            type: string
+                            nullable: true
+                            example: "1000001"
+                          role:
+                            type: string
+                            example: admin
+        '401':
+          description: Kredensial tidak valid (email/password salah)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Akun dinonaktifkan (ACCOUNT_INACTIVE)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/users:
+    post:
+      summary: Membuat akun user baru (Superadmin Only)
+      description: Membutuhkan trusted header `X-User-Role: superadmin`. Memvalidasi `emp_id` ke core service sebelum akun dibuat.
+      parameters:
+        - name: X-User-Role
+          in: header
+          required: true
+          schema:
+            type: string
+            example: superadmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - role
+              properties:
+                email:
+                  type: string
+                  example: budi@majumundur.com
+                password:
+                  type: string
+                  example: initialpassword
+                role:
+                  type: string
+                  enum: [superadmin, admin, employee]
+                  example: employee
+                emp_id:
+                  type: integer
+                  description: Wajib untuk role admin dan employee. Opsional untuk superadmin.
+                  example: 1000002
+      responses:
+        '201':
+          description: Akun user berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Validasi gagal (misalnya emp_id tidak ditemukan di core, format email salah, dll)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (Caller bukan superadmin)
+        '409':
+          description: Email sudah terdaftar (EMAIL_ALREADY_EXISTS)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/users/{user_id}/role:
+    patch:
+      summary: Memperbarui role user (Superadmin Only)
+      description: Membutuhkan trusted header `X-User-Role: superadmin`.
+      parameters:
+        - name: X-User-Role
+          in: header
+          required: true
+          schema:
+            type: string
+            example: superadmin
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1000002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  enum: [superadmin, admin, employee]
+                  example: admin
+      responses:
+        '200':
+          description: Role berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+
+  /auth/users/{user_id}/reset-password:
+    post:
+      summary: Reset password user (Superadmin Only)
+      description: Membutuhkan trusted header `X-User-Role: superadmin`.
+      parameters:
+        - name: X-User-Role
+          in: header
+          required: true
+          schema:
+            type: string
+            example: superadmin
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1000002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  example: newsecurepassword
+      responses:
+        '200':
+          description: Password berhasil di-reset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Password berhasil di-reset
+        '404':
+          description: User tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+
+components:
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            user_id:
+              type: string
+              example: "1000002"
+            email:
+              type: string
+              example: budi@majumundur.com
+            role:
+              type: string
+              example: employee
+            emp_id:
+              type: string
+              nullable: true
+              example: "1000002"
+            is_active:
+              type: boolean
+              example: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: INVALID_CREDENTIALS
+            message:
+              type: string
+              example: Email atau password salah
+            details:
+              type: string
+              nullable: true
+              example: null

@@ -1,0 +1,4 @@
+node_modules/
+.env
+keys/private_key.pem
+.DS_Store
