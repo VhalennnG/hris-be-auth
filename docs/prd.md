@@ -20,6 +20,20 @@
 - Data karyawan (employee, reporting line) — itu domain `hris-be-core`.
 - Service ini **tidak pernah dipanggil langsung oleh frontend** — semua request via `hris-be-orchestrator`.
 
+Tech Stack & Environment
+
+| Layer             | Teknologi                                 |
+| :---------------- | :---------------------------------------- |
+| Framework Backend | Node.js dengan Express[cite: 2]           |
+| Database          | PostgreSQL (Pure SQL, tanpa ORM)[cite: 2] |
+
+AI-Assisted Development Tooling (MCP)
+
+Selama sesi _vibe coding_ (pengembangan, _review_, _debugging_) yang merujuk pada PRD dan skema basis data, disarankan mengaktifkan MCP (Model Context Protocol) berikut:
+
+- **`context7`** — dipakai untuk mengambil dokumentasi terbaru dari library/framework yang dipakai (Express, `pg` / `node-postgres`), supaya kode yang dihasilkan AI assistant mengikuti API versi yang aktual.
+- **`sequential-thinking`** — dipakai untuk memecah task implementasi yang kompleks menjadi langkah-langkah bertahap sebelum eksekusi, supaya keputusan desain terstruktur dan bisa direview per langkah.
+
 ---
 
 ## 2. Scope & Batasan
