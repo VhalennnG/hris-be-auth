@@ -1,0 +1,25 @@
+stateDiagram-v2
+    [*] --> Active : POST /auth/users\n(superadmin membuat akun baru,\nis_active = true default)
+
+    Active --> Active : Login sukses\n(password cocok)
+    Active --> LoginRejected : Login gagal\n(password salah)\nINVALID_CREDENTIALS
+    LoginRejected --> Active : User coba lagi\ndengan password benar
+
+    Active --> Inactive : superadmin menonaktifkan akun\n(is_active = false)\ncontoh: offboarding karyawan
+
+    Inactive --> LoginBlocked : User mencoba login\nwalau password benar\nACCOUNT_INACTIVE (403)
+    LoginBlocked --> Inactive : Tetap diblokir\nselama is_active = false
+
+    Inactive --> Active : superadmin mengaktifkan\nkembali akun\n(is_active = true)
+
+    Active --> PasswordReset : superadmin melakukan\nreset password\n(POST /reset-password)
+    PasswordReset --> Active : password_hash diperbarui,\nuser bisa login dengan\npassword baru
+
+    note right of Inactive
+        Soft-delete pattern:
+        data user TIDAK dihapus,
+        hanya diblokir dari login.
+        Konsisten dengan pendekatan
+        soft-delete di hris-be-core
+        (Section 9.1 PRD_CORE)
+    end note
