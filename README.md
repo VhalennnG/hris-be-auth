@@ -100,6 +100,23 @@ Diagram pendukung keamanan dan otentikasi berikut dapat ditemukan di folder [doc
 | **Password JWT Signing**         | Alur pendaftaran password, verifikasi hash, dan penerbitan token JWT asimetris. | [08_activity_password_jwt_signing.mermaid](docs/diagrams/08_activity_password_jwt_signing.mermaid) |
 | **State Machine Account Status** | Transisi daur hidup status keaktifan akun user.                                 | [09_state_machine_account_status.mermaid](docs/diagrams/09_state_machine_account_status.mermaid)   |
 
+## Prasyarat Kunci Kriptografi (Security Keys Setup)
+
+Service ini menggunakan asymmetric cryptography (RS256) untuk menandatangani JWT. Karena berkas `keys/private_key.pem` diabaikan oleh Git (`.gitignore`) demi keamanan, Anda wajib men-generate pasangan kunci Anda sendiri setelah meng-cloning repositori ini:
+
+1. Buat folder `keys` di root folder service ini (jika belum ada):
+   ```bash
+   mkdir -p keys
+   ```
+2. Generate private key (RSA 2048 bit):
+   ```bash
+   openssl genrsa -out keys/private_key.pem 2048
+   ```
+3. Ekstrak public key dari private key tersebut:
+   ```bash
+   openssl rsa -in keys/private_key.pem -pubout -out keys/public_key.pem
+   ```
+
 ---
 
 ## Environment Variables
