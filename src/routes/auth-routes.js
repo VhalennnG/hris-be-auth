@@ -10,7 +10,8 @@ import { login } from '../controllers/auth-controller.js';
 import {
   createUser,
   updateUserRole,
-  resetPassword
+  resetPassword,
+  listUsers
 } from '../controllers/user-controller.js';
 
 const router = Router();
@@ -19,8 +20,10 @@ const router = Router();
 router.post('/login', validateLogin, login);
 
 // Admin / Superadmin user management routes
+router.get('/users', requireSuperadmin, listUsers);
 router.post('/users', requireSuperadmin, validateCreateUser, createUser);
 router.patch('/users/:user_id/role', requireSuperadmin, validateUpdateRole, updateUserRole);
 router.post('/users/:user_id/reset-password', requireSuperadmin, validateResetPassword, resetPassword);
 
 export default router;
+

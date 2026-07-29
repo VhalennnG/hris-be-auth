@@ -125,3 +125,29 @@ export async function resetPassword(req, res, next) {
     next(error);
   }
 }
+
+// GET /api/v1/auth/users
+export async function listUsers(req, res, next) {
+  try {
+    const usersRes = await pool.query(
+      `SELECT user_id, email, role, emp_id, is_active, created_at, updated_at 
+       FROM users 
+       ORDER BY user_id DESC`
+    );
+    return res.status(200).json({
+      status: 'success',
+      data: usersRes.rows.map(row => ({
+        user_id: row.user_id.toString(),
+        email: row.email,
+        role: row.role,
+        emp_id: row.emp_id ? row.emp_id.toString() : null,
+        is_active: row.is_active,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }))
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
