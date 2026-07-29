@@ -10,6 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Diagnostic logging middleware
+app.use((req, res, next) => {
+  console.log(`[Auth] Received request: ${req.method} ${req.originalUrl} (req.url: ${req.url})`);
+  next();
+});
+
 // Auth API Routes
 app.use('/api/v1/auth', authRoutes);
 
