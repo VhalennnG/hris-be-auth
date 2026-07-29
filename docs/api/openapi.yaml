@@ -23,12 +23,12 @@ paths:
               properties:
                 email:
                   type: string
-                  example: admin@majumundur.com
+                  example: superadmin@majumundur.com
                 password:
                   type: string
-                  example: supersecurepassword
+                  example: password
       responses:
-        '200':
+        "200":
           description: Login berhasil, token diterbitkan
           content:
             application/json:
@@ -63,23 +63,23 @@ paths:
                           role:
                             type: string
                             example: admin
-        '401':
+        "401":
           description: Kredensial tidak valid (email/password salah)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Akun dinonaktifkan (ACCOUNT_INACTIVE)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/users:
     post:
       summary: Membuat akun user baru (Superadmin Only)
-      description: Membutuhkan trusted header `X-User-Role: superadmin`. Memvalidasi `emp_id` ke core service sebelum akun dibuat.
+      description: "Membutuhkan trusted header X-User-Role: superadmin. Memvalidasi emp_id ke core service sebelum akun dibuat."
       parameters:
         - name: X-User-Role
           in: header
@@ -113,31 +113,31 @@ paths:
                   description: Wajib untuk role admin dan employee. Opsional untuk superadmin.
                   example: 1000002
       responses:
-        '201':
+        "201":
           description: Akun user berhasil dibuat
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
-        '400':
+                $ref: "#/components/schemas/UserResponse"
+        "400":
           description: Validasi gagal (misalnya emp_id tidak ditemukan di core, format email salah, dll)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Caller bukan superadmin)
-        '409':
+        "409":
           description: Email sudah terdaftar (EMAIL_ALREADY_EXISTS)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/users/{user_id}/role:
     patch:
       summary: Memperbarui role user (Superadmin Only)
-      description: Membutuhkan trusted header `X-User-Role: superadmin`.
+      description: "Membutuhkan trusted header X-User-Role: superadmin."
       parameters:
         - name: X-User-Role
           in: header
@@ -165,25 +165,25 @@ paths:
                   enum: [superadmin, admin, employee]
                   example: admin
       responses:
-        '200':
+        "200":
           description: Role berhasil diperbarui
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
-        '404':
+                $ref: "#/components/schemas/UserResponse"
+        "404":
           description: User tidak ditemukan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden
 
   /auth/users/{user_id}/reset-password:
     post:
       summary: Reset password user (Superadmin Only)
-      description: Membutuhkan trusted header `X-User-Role: superadmin`.
+      description: "Membutuhkan trusted header X-User-Role: superadmin."
       parameters:
         - name: X-User-Role
           in: header
@@ -210,7 +210,7 @@ paths:
                   type: string
                   example: newsecurepassword
       responses:
-        '200':
+        "200":
           description: Password berhasil di-reset
           content:
             application/json:
@@ -226,13 +226,13 @@ paths:
                       message:
                         type: string
                         example: Password berhasil di-reset
-        '404':
+        "404":
           description: User tidak ditemukan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden
 
 components:
