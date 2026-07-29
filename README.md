@@ -100,44 +100,60 @@ Diagram pendukung keamanan dan otentikasi berikut dapat ditemukan di folder [doc
 | **Password JWT Signing**         | Alur pendaftaran password, verifikasi hash, dan penerbitan token JWT asimetris. | [08_activity_password_jwt_signing.mermaid](docs/diagrams/08_activity_password_jwt_signing.mermaid) |
 | **State Machine Account Status** | Transisi daur hidup status keaktifan akun user.                                 | [09_state_machine_account_status.mermaid](docs/diagrams/09_state_machine_account_status.mermaid)   |
 
-## Prasyarat Kunci Kriptografi (Security Keys Setup)
+## Panduan Memulai & Cara Menjalankan (Quick Start Guide)
 
-Service ini menggunakan asymmetric cryptography (RS256) untuk menandatangani JWT. Karena berkas `keys/private_key.pem` diabaikan oleh Git (`.gitignore`) demi keamanan, Anda wajib men-generate pasangan kunci Anda sendiri setelah meng-cloning repositori ini:
+Ikuti langkah-langkah berikut untuk meng-cloning, mengonfigurasi, dan menjalankan service `hris-be-auth` dari awal:
 
-1. Buat folder `keys` di root folder service ini (jika belum ada):
-   ```bash
-   mkdir -p keys
-   ```
-2. Generate private key (RSA 2048 bit):
-   ```bash
-   openssl genrsa -out keys/private_key.pem 2048
-   ```
-3. Ekstrak public key dari private key tersebut:
-   ```bash
-   openssl rsa -in keys/private_key.pem -pubout -out keys/public_key.pem
-   ```
+### 1. Clone Repositori
+```bash
+git clone https://github.com/VhalennnG/hris-be-auth.git
+cd hris-be-auth
+```
 
----
+### 2. Instalasi Dependensi
+```bash
+npm install
+```
 
-## Environment Variables
+### 3. Setup Kunci Kriptografi RSA (Asymmetric Keys)
+Karena berkas kunci privat (`private_key.pem`) diabaikan oleh Git (`.gitignore`) demi alasan keamanan, Anda wajib men-generate kunci Anda sendiri:
+```bash
+mkdir -p keys
+openssl genrsa -out keys/private_key.pem 2048
+openssl rsa -in keys/private_key.pem -pubout -out keys/public_key.pem
+```
 
-Salin berkas `.env.example` menjadi `.env` di folder root auth service untuk konfigurasi:
-
+### 4. Konfigurasi Environment Variables
+Salin berkas contoh `.env.example` menjadi `.env`:
+```bash
+cp .env.example .env
+```
+Buka berkas `.env` dan sesuaikan kredensial database PostgreSQL Anda (seperti host, port, user, dan password):
 ```env
 PORT=4002
-
-# Konfigurasi Database PostgreSQL
 HRIS_AUTH_DB_HOST=localhost
 HRIS_AUTH_DB_PORT=5432
 HRIS_AUTH_DB_USER=<YOUR_DB_USER>
 HRIS_AUTH_DB_PASS=<YOUR_DB_PASSWORD>
 HRIS_AUTH_DB_NAME=hris_auth_db
 
-# Asymmetric RSA Key Pairs untuk penandatanganan JWT (RS256)
-# Catatan: Gunakan string raw PEM atau load via fs.readFileSync
+# Kunci asimetris RSA yang dimuat dari folder keys
 AUTH_PRIVATE_KEY="<YOUR_RSA_PRIVATE_KEY_PEM_STRING>"
 AUTH_PUBLIC_KEY="<YOUR_RSA_PUBLIC_KEY_PEM_STRING>"
 ```
+
+### 5. Inisialisasi Database & Seeding Data
+Pastikan database `hris_auth_db` sudah dibuat di PostgreSQL Anda, kemudian jalankan script seeder untuk membuat tabel dan mengisi data awal:
+```bash
+node scripts/seed-data.js
+```
+
+### 6. Menjalankan Service (Development Mode)
+Jalankan service menggunakan `nodemon` untuk hot-reload di lingkungan development:
+```bash
+npm run dev
+```
+Service akan berjalan secara lokal di `http://localhost:4002`. Anda dapat mengakses dokumentasi API interaktif (Swagger UI) di [http://localhost:4002/docs](http://localhost:4002/docs).
 
 ---
 
