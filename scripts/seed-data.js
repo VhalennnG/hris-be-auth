@@ -66,6 +66,22 @@ async function seed() {
       { name: 'Bambang Hermawan', job_title: 'Business Analyst', department: 'Product', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'unit_business', is_ceo: false, is_active: true },
       // UI/UX Designer (Unit Business - 2 managers)
       { name: 'Cici Paramida', job_title: 'UI/UX Designer', department: 'Design', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'unit_business', is_ceo: false, is_active: true },
+      // VP of Engineering (Shared Services)
+      { name: 'Eka Putra', job_title: 'VP of Engineering', department: 'Engineering', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: true },
+      // VP of Marketing (Shared Services)
+      { name: 'Fitriani', job_title: 'VP of Marketing', department: 'Marketing', division: 'Business', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: true },
+      // DevOps Engineer (Shared Services)
+      { name: 'Guntur', job_title: 'DevOps Engineer', department: 'Engineering', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: true },
+      // Frontend Engineer (Unit Business)
+      { name: 'Hadi', job_title: 'Frontend Engineer', department: 'Engineering', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'unit_business', is_ceo: false, is_active: true },
+      // QA Engineer (Shared Services)
+      { name: 'Indah', job_title: 'QA Engineer', department: 'Engineering', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: true },
+      // Product Designer (Unit Business)
+      { name: 'Kartika', job_title: 'Product Designer', department: 'Design', division: 'Technology', company: 'PT Maju Mundur', assignment_type: 'unit_business', is_ceo: false, is_active: true },
+      // Marketing Manager (Shared Services)
+      { name: 'Lukman', job_title: 'Marketing Manager', department: 'Marketing', division: 'Business', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: true },
+      // Social Media Specialist (Shared Services)
+      { name: 'Mega', job_title: 'Social Media Specialist', department: 'Marketing', division: 'Business', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: true },
       // Inactive Marketing Associate
       { name: 'Zulkifli Hasan', job_title: 'Marketing Associate', department: 'Marketing', division: 'Business', company: 'PT Maju Mundur', assignment_type: 'shared_services', is_ceo: false, is_active: false }
     ];
@@ -94,9 +110,23 @@ async function seed() {
       { emp_id: empIdMap['Dedi Kurniawan'], manager_emp_id: empIdMap['Budi Santoso'], manager_type: 'core_line_manager', is_primary: true },
       // Joko reports to Budi (CEO)
       { emp_id: empIdMap['Joko Widodo'], manager_emp_id: empIdMap['Budi Santoso'], manager_type: 'core_line_manager', is_primary: true },
+      // Eka reports to Budi (CEO)
+      { emp_id: empIdMap['Eka Putra'], manager_emp_id: empIdMap['Budi Santoso'], manager_type: 'core_line_manager', is_primary: true },
+      // Fitriani reports to Budi (CEO)
+      { emp_id: empIdMap['Fitriani'], manager_emp_id: empIdMap['Budi Santoso'], manager_type: 'core_line_manager', is_primary: true },
+      
       // Ani (Shared Services) reports to Dedi
       { emp_id: empIdMap['Ani Wijaya'], manager_emp_id: empIdMap['Dedi Kurniawan'], manager_type: 'core_line_manager', is_primary: true },
+      // Guntur (Shared Services) reports to Dedi
+      { emp_id: empIdMap['Guntur'], manager_emp_id: empIdMap['Dedi Kurniawan'], manager_type: 'core_line_manager', is_primary: true },
+      // Indah (Shared Services) reports to Dedi
+      { emp_id: empIdMap['Indah'], manager_emp_id: empIdMap['Dedi Kurniawan'], manager_type: 'core_line_manager', is_primary: true },
       
+      // Lukman reports to Fitriani
+      { emp_id: empIdMap['Lukman'], manager_emp_id: empIdMap['Fitriani'], manager_type: 'core_line_manager', is_primary: true },
+      // Mega reports to Lukman
+      { emp_id: empIdMap['Mega'], manager_emp_id: empIdMap['Lukman'], manager_type: 'core_line_manager', is_primary: true },
+
       // Bambang (Unit Business) reports to:
       // - Dedi (Core Line - Primary)
       // - Joko (UB Manager - Secondary)
@@ -107,7 +137,19 @@ async function seed() {
       // - Joko (Core Line - Secondary)
       // - Dedi (UB Manager - Primary)
       { emp_id: empIdMap['Cici Paramida'], manager_emp_id: empIdMap['Joko Widodo'], manager_type: 'core_line_manager', is_primary: false },
-      { emp_id: empIdMap['Cici Paramida'], manager_emp_id: empIdMap['Dedi Kurniawan'], manager_type: 'ub_manager', is_primary: true }
+      { emp_id: empIdMap['Cici Paramida'], manager_emp_id: empIdMap['Dedi Kurniawan'], manager_type: 'ub_manager', is_primary: true },
+
+      // Hadi (Unit Business) reports to:
+      // - Eka (Core Line - Primary)
+      // - Dedi (UB Manager - Secondary)
+      { emp_id: empIdMap['Hadi'], manager_emp_id: empIdMap['Eka Putra'], manager_type: 'core_line_manager', is_primary: true },
+      { emp_id: empIdMap['Hadi'], manager_emp_id: empIdMap['Dedi Kurniawan'], manager_type: 'ub_manager', is_primary: false },
+
+      // Kartika (Unit Business) reports to:
+      // - Joko (Core Line - Primary)
+      // - Eka (UB Manager - Secondary)
+      { emp_id: empIdMap['Kartika'], manager_emp_id: empIdMap['Joko Widodo'], manager_type: 'core_line_manager', is_primary: true },
+      { emp_id: empIdMap['Kartika'], manager_emp_id: empIdMap['Eka Putra'], manager_type: 'ub_manager', is_primary: false }
     ];
 
     for (const line of reportingLines) {
@@ -126,7 +168,10 @@ async function seed() {
       { emp_id: empIdMap['Siti Rahmawati'], changed_field: 'primary_manager', old_value: null, new_value: empIdMap['Budi Santoso'].toString(), changed_by: 1000000 },
       { emp_id: empIdMap['Bambang Hermawan'], changed_field: 'assignment_type', old_value: null, new_value: 'unit_business', changed_by: 1000000 },
       { emp_id: empIdMap['Bambang Hermawan'], changed_field: 'primary_manager', old_value: null, new_value: empIdMap['Dedi Kurniawan'].toString(), changed_by: 1000000 },
-      { emp_id: empIdMap['Bambang Hermawan'], changed_field: 'secondary_manager', old_value: null, new_value: empIdMap['Joko Widodo'].toString(), changed_by: 1000000 }
+      { emp_id: empIdMap['Bambang Hermawan'], changed_field: 'secondary_manager', old_value: null, new_value: empIdMap['Joko Widodo'].toString(), changed_by: 1000000 },
+      { emp_id: empIdMap['Hadi'], changed_field: 'assignment_type', old_value: null, new_value: 'unit_business', changed_by: 1000000 },
+      { emp_id: empIdMap['Hadi'], changed_field: 'primary_manager', old_value: null, new_value: empIdMap['Eka Putra'].toString(), changed_by: 1000000 },
+      { emp_id: empIdMap['Hadi'], changed_field: 'secondary_manager', old_value: null, new_value: empIdMap['Dedi Kurniawan'].toString(), changed_by: 1000000 }
     ];
 
     for (const log of historyLogs) {
